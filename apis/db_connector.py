@@ -1,129 +1,116 @@
-import mysql.connector
+import random
 
-# Nos conectamos a la base de datos
-# NOTA: user y password pueden cambiar dependiendo de la base de datos
-# que vayan a usar.
-db = mysql.connector.connect(user='mekano',
-                             password='mekano',
-                             database='typing_game')
-cursor = db.cursor()
+lessons = [
+    {
+        "numLess": 1,
+        "name": "Home Row",
+        "explanation": "Posiciona tus dedos sobre la fila central del teclado",
+        "category": "a-ñ",
+    },
+    {
+        "numLess": 2,
+        "name": "Top Row",
+        "explanation": "Posiciona tus dedos sobre la fila superior del teclado",
+        "category": "q-p"
+    },
+    {
+        "numLess": 3,
+        "name": "Bottom Row",
+        "explanation": "Posiciona tus dedos sobre la fila inferior del teclado",
+        "category":  """z-""-"""
+    },
+    {
+        "numLess": 4,
+        "name": "Numeric Row",
+        "explanation": "Posiciona tus dedos sobre la fila numérica del teclado",
+        "category": "1-0"
+    },
+]
 
-# Función que retorna una lista que contiene los diccionarios que corresponden
-# a cada lección almacenada en la base de datos
+randomText = [
+    {
+        "id": 1,
+        "contents": "Aunque la gente feliz digan que lo son, nadie esta satisfecho: siempre tenemos que estar con la mujer mas hermosa, con la casa mas grande, cambiando coches, deseando lo que no tenemos."
+    },
+    {
+        "id": 2,
+        "contents": 'Creo que la iluminacion o revelacion vienen en la v"id"a diaria. Busco el disfrute, la paz de la accion. Necesitas actuar. Hubiera parado de escribir hace años si fuese por el dinero'
+    },
+    {
+        "id": 3,
+        "contents": "La cosa mas importante en todas las relaciones humanas es la conversacion, pero la gente ya no habla, no se sientan y escuchan. Van al cine, al teatro, ven la television, escuchan la radio, leen libros, pero casi no hablan. Si queremos cambiar el mundo, tenemos que volver al tiempo en que los guerreros se sentaban alrededor de un fuego a contar historias"
+    },
+    {
+        "id": 4,
+        "contents": "Un niño puede enseñar a un adulto tres cosas: ser feliz sin razon, siempre estar ocupado con algo y saber como demandar con toda su voluntad lo que desea"
+    },
+    {
+        "id": 5,
+        "contents": "No permitas que tu mente le diga a tu corazon que debe hacer"
+    }
+]
 
+ranking = [
+    {
+        "username": "ElOaks",
+        "wpm": 72
+    },
+    {
+        "username": "AngelogroPistaches",
+        "wpm": 73
+    },
+    {
+        "username": "ElGrobas",
+        "wpm": 69
+    },
+    {
+        "username": "Mañuel",
+        "wpm": 70
+    },
+    {
+        "username": "SilisiosElDelFarnais",
+        "wpm": 66
+    },
+    {
+        "username": "DieguitoMaradona",
+        "wpm": 75
+    },
+]
 
 def getLessons(numLess=None):
     dataList = []
     if numLess:
-        query = "SELECT * FROM lesson WHERE numLess=%s"
-        try:
-            cursor.execute(query, (numLess,))
-        except:
-            return dataList
-        auxTuple = cursor.fetchall()
-        innerAT = auxTuple[0]
-        data = {
-            "numLess": innerAT[0],
-            "name": innerAT[1],
-            "explanation": innerAT[2],
-            "category": innerAT[3],
-            "content": []
-        }
-        return data
-    # Se ejecuta la query especificada
-    try:
-        cursor.execute("SELECT * FROM lesson;")
-    except:
-        return dataList
-    # fetchall regresa una lista que contiene a todos los registros retornados
-    # por la base de datos anterior, por lo que iteramos por esta obteniendo
-    # sus filas
-    for row in cursor.fetchall():
-        data = {
-            "numLess": row[0],
-            "name": row[1],
-            "explanation": row[2],
-            "category": row[3],
-            "content": []
-        }
-        dataList.append(data)
-    return dataList
-
-# Función que retorna una lista de contenidos ("textos aleatorios"), se le puede
-# proporcionar el id de la lección a la que están ligados para filtrarlos
-
+        if numLess > len(lessons):
+            return []
+        return lessons[numLess-1]
+    return lessons
 
 def getContent(numLess=None):
-    # Si se proporciona una id
-    contents = []
-    idRands = []
     if numLess:
-        query = "SELECT idRand FROM lessRand WHERE idLess=%s;"
-        # Se guardan todos los id de randomtext que coincidan
-        # con el id proporcionado en una lista
-        try:
-            cursor.execute(query, (numLess,))
-        except:
-            return contents
-        for idRandAux in cursor.fetchall():
-            idRands.append(idRandAux[0])
-
-        # Se recorre la lista y se obtiene el contenido de cada registro del
-        # id proporcionado
-        for idRand in idRands:
-            query = """SELECT contents FROM randomText
-                    WHERE id=%s;"""
-            try:
-                cursor.execute(query, (idRand,))
-            except:
-                return contents
-            auxList = (cursor.fetchall())[0]
-            contents.append(auxList[0])
-
-        return contents
-    # Si no se proporciona id
-    cursor.execute("SELECT contents FROM randomText;")
-    contents = cursor.fetchall()
-    return contents
-
-# Regresa una lista de objetos que tiene todas las posiciones del ranking
-
+        if numLess >= len(randomText):
+            return []
+        return randomText[numLess-1]["contents"]
+    
+    textos = []
+    for text in randomText:
+        textos.append(text["contents"])
+    
+    return textos
 
 def getActualRanking():
-    ranking = []
-    try:
-        cursor.execute("SELECT * FROM ranking ORDER BY wpm DESC LIMIT 10;")
-    except:
-        return ranking
-    for aux in cursor.fetchall():
-        data = {
-            "username": aux[0],
-            "wpm": aux[1]
-        }
-        ranking.append(data)
-    return ranking
+    ranking_ordenado = sorted(ranking, key=lambda x: x["wpm"], reverse=True)
+    return ranking_ordenado
 
 
 def updateRanking(user, wpm):
-    try:
-        query = 'INSERT INTO ranking(userName, wpm) VALUES (%s, %s);'
-        cursor.execute(query, (user, wpm))
-        db.commit()
-        return True
-    except:
-        return False
+    return True
 
 
 def getRandomText():
-    query = 'SELECT contents FROM randomText ORDER BY RAND() LIMIT 1;'
-    try:
-        cursor.execute(query)
-    except:
-        print("No funka")
-    text = []
-    for row in cursor.fetchall():
-        a = {
-            'content': row[0]
-        }
-        text.append(a)
-    return text
+    ramdom_lesson = random.randint(0, len(randomText))
+    
+    random_text = {
+        'content': randomText[ramdom_lesson-1]["contents"]
+    }
+
+    return [random_text]

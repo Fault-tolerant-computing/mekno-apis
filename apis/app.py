@@ -1,7 +1,9 @@
 from db_connector import getLessons, getContent, getActualRanking, updateRanking, getRandomText
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/content/<int:num>')
 def getLessonContent(num):
@@ -10,8 +12,6 @@ def getLessonContent(num):
 @app.route('/menu')
 def getMenu():
     lessons = getLessons()
-    #for lesson in lessons:
-        #lesson["content"] = getContent(lesson["numLess"])
     return jsonify(lessons)
 
 

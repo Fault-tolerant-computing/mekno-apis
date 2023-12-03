@@ -19,5 +19,5 @@ Repo for the API's of Mekano
     - Relocate a bash session into your istio folder (downloaded in step 2) and deploy the istio addons with the next command `kubectl apply -f samples/addons`.
 
 6. Enable Kiali
-    - Finally enable the port forwarding for kiali with `kubectl port-forwar svc/kiali -n istio-system 20001`.
+    - Finally enable the port forwarding for kiali with `kubectl port-forward svc/kiali -n istio-system 20001`.
 
